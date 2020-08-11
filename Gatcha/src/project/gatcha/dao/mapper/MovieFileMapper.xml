@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 이 XML의 구조대로 구현될 클래스의 이름 => Impl클래스를 대체한다. -->
+<mapper namespace="MovieFileMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="movie_file" type="project.gatcha.model.MovieFile">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="id" column="id" />
+		<result property="movieKfaId" column="movie_kfa_id" />
+		<result property="originName" column="origin_name" />
+		<result property="fileUrl" column="file_url" />
+		<result property="fileName" column="file_name" />
+		<result property="contentType" column="content_type" />
+		<result property="fileSize" column="file_size" />
+		<result property="fileCategory" column="file_category" />
+		<result property="regDate" column="reg_date" />
+		<result property="editDate" column="edit_date" />
+	</resultMap>
+
+		
+    <!-- 영화 파일정보를 저장한다 -->
+	<insert id="insertMovieFile" parameterType="project.gatcha.model.MovieFile" 
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO movie_file (
+			movie_kfa_id, origin_name, file_url, file_name, content_type, 
+			file_size, file_category, reg_date, edit_date 
+		) VALUES (
+			#{movieKfaId}, #{originName}, #{fileUrl}, #{fileName}, #{contentType}, 
+			#{fileSize}, #{fileCategory},  now(), now() 
+		)
+	</insert>
+	
+	<!--영화 코드에 의한 영화 파일정보 조회 -->
+    <select id="selectMovieFile" parameterType="project.gatcha.model.MovieFile" 
+    	resultMap="movie_file">
+        SELECT 
+        	id, movie_kfa_id, origin_name, file_url, file_name, content_type, 
+			file_size, file_category, reg_date, edit_date 
+        FROM movie_file 
+        WHERE movie_kfa_id=#{movieKfaId}
+    </select>
+    
+    <!-- 영화 파일정보 전체 조회 -->
+    <select id="selectMovieFileList" parameterType="project.gatcha.model.MovieFile" 
+    	resultMap="movie_file">
+        SELECT 
+        	id, movie_kfa_id, origin_name, file_url, file_name, content_type, 
+			file_size, file_category, reg_date, edit_date 
+        FROM movie_file 
+    </select>
+
+	<!-- 영화 파일정보를 변경한다 -->
+	<update id="updateMovieFile" parameterType="project.gatcha.model.MovieFile">
+		UPDATE movie_file SET 
+			movie_kfa_id=#{movieKfaId}, origin_name=#{originName}, file_url=#{fileUrl}, file_name=#{fileName}, 
+			content_type=#{contentType}, file_size=#{fileSize}, file_category=#{fileCategory}, edit_date=now() 
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 영화 파일정보를 삭제한다-->
+	<delete id="deleteMovieFile" parameterType="project.gatcha.model.MovieFile">
+		DELETE FROM movie_file WHERE id=#{id};
+	</delete>
+
+</mapper>
+
+
+
+
+

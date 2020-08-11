@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 이 XML의 구조대로 구현될 클래스의 이름 => Impl클래스를 대체한다. -->
+<mapper namespace="DiaryMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="diary" type="project.gatcha.model.Diary">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="id" column="id" />
+		<result property="diary" column="diary" />
+		<result property="my_starpoint" column="my_starpoint" />
+		<result property="edit_date" column="edit_date" />
+		<result property="poster" column="poster" />
+		<result property="title" column="title" />
+		<result property="member_id" column="member_id" />
+		<result property="movie_kfd_id" column="movie_kfa_id" />
+	</resultMap>
+   	 
+   	 <!-- 주어진 영화에 대한 다이어리 리스트의 file을 조회 (Limit필요) -->
+   	 <select id="selectDiarylist" parameterType="project.gatcha.model.Diary" resultMap="diary">
+   	 	
+		SELECT ev.id as id, substring(ev.edit_date, 1, 11) as edit_date, ev.diary as diary, m.title as title, m.kfa_id as movie_kfd_id, 
+        (SELECT file_url FROM movie_file mf WHERE(m.kfa_id = mf.movie_kfa_id) AND (file_category = "p") limit 0,1) AS poster, ev.member_id as member_id 
+      	From movie m 
+      	LEFT OUTER JOIN evaluate ev On ev.movie_kfa_id = m.kfa_id AND ev.member_id=#{member_id}
+      	WHERE (ev.diary IS NOT NULL) or (ev.diary!="") or (ev.diary!=" ")
+      	
+   	 </select>
+   	 
+   	 <!-- 다이어리 정보 수정하기 -->
+	<select id="selectDiaryOne" parameterType="project.gatcha.model.Diary" resultMap="diary">
+		SELECT ev.id as id, ev.edit_date as edit_date, ev.diary as diary, m.title as title, m.kfd_id AS movie_kfd_id,
+        (SELECT file_url FROM movie_file WHERE file_category = "p" limit 0,1) AS poster, ev.member_id as member_id
+      	From movie m
+      	LEFT OUTER JOIN evaluate ev On ev.movie_kfa_id = m.kfa_id
+      	WHERE ev.member_id=#{member_id} AND ev.diary IS NOT NULL
+   	 	AND ev.id=#{id}
+	</select>
+	
+	
+	
+		
+	
+	
+	
+</mapper>

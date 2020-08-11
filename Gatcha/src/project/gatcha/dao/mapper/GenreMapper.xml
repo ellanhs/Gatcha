@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+    <mapper namespace="GenreMapper">
+    
+    <resultMap id="genre" type="project.gatcha.model.Genre">
+    	<result property="id" column="id" />
+    	<result property="genreName" column="genre_name" />
+    	<result property="regDate" column="reg_date" />
+    	<result property="editDate" column="edit_date" />
+    </resultMap>
+    
+    
+    <!-- 장르 추가 -->
+    <insert id="insertGenre" parameterType="project.gatcha.model.Genre" useGeneratedKeys="true" keyProperty="id">
+    	INSERT INTO genre (genre_name, reg_date, edit_date) 
+    	VALUES (#{genreName}, now(),now())
+    </insert>
+    
+    <!-- 장르 수정 -->
+    <update id="updateGenre" parameterType="project.gatcha.model.Genre" >
+    	UPDATE genre SET 
+    		genre_name = #{genreName} 
+    		edit_date = now() 
+    	WHERE id = #{id}
+    </update>
+    
+    
+    <!-- 장르 삭제 -->
+    
+    <delete id="deleteGenre" parameterType="project.gatcha.model.Genre" >
+    	DELETE FROM genre WHERE id = #{id}
+    </delete>
+    
+    <!-- 장르 조회 -->
+    <select id="selectGenre" parameterType="project.gatcha.model.Genre" resultMap="genre">
+    	SELECT id, genre_name,
+    			DATE_FORMAT(reg_date, '%Y-%m-%d %H:%i:%s') as reg_date, 
+				DATE_FORMAT(edit_date, '%Y-%m-%d %H:%i:%s') as edit_date  
+    	FROM genre 
+    	WHERE id = #{id} 
+    </select> 
+    
+    <!-- 장르 전체 조회 -->
+     <select id="selectGenreList" parameterType="project.gatcha.model.Genre" resultMap="genre">
+    	SELECT id, genre_name, 
+		DATE_FORMAT(reg_date, '%Y-%m-%d %H:%i:%s') as reg_date, 
+		DATE_FORMAT(edit_date, '%Y-%m-%d %H:%i:%s') as edit_date
+    FROM genre
+    </select> 
+    
+    
+    
+    
+    
+    
+    </mapper>
+    
+    

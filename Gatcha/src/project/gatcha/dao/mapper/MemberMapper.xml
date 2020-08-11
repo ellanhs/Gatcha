@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+    <mapper namespace="MemberMapper">
+    
+    <resultMap id="member" type="project.gatcha.model.Member">
+    	<result property="id" column="id" />
+    	<result property="nickname" column="nickname" />
+    	<result property="email" column="email" />
+    	<result property="userPw" column="user_pw" />
+    	<result property="level" column="level" />
+    	<result property="gender" column="gender" />
+    	<result property="birthdate" column="birthdate" />
+    	<result property="genre" column="genre" />
+    	<result property="regDate" column="reg_date" />
+    	<result property="editDate" column="edit_date" />
+    </resultMap>
+    
+    
+	<!-- 아이디 중복검사를 수행한다 -->
+    <select id="selectUserIdCount" parameterType="project.gatcha.model.Member" resultType="int">
+        SELECT count(id) FROM member WHERE email=#{email}
+    </select>
+    
+    	<!-- 일반회원 가입 -->
+    	<insert id="insertMember" parameterType="project.gatcha.model.Member" useGeneratedKeys="true" keyProperty="id">
+    	INSERT INTO member (nickname, email, user_pw, level, birthdate ,gender, reg_date, edit_date )
+    	VALUES (#{nickname}, #{email}, password(#{userPw}), 0, #{birthdate}, #{gender}, now(), now())
+    	</insert>
+
+    	<!-- 일반회원 가입시 선호장르 저장 -->
+    	<insert id="insertMemberHasGenre" parameterType="project.gatcha.model.Member" useGeneratedKeys="true" keyProperty="id">
+    	INSERT INTO member_has_genre( member_id, genre_id, reg_date, edit_date ) 
+    	VALUES( #{id}, #{genre}, now(), now() )
+    	</insert>
+   
+      	<!-- 관리자 가입 -->
+    	<insert id="insertMemberAd" parameterType="project.gatcha.model.Member" useGeneratedKeys="true" keyProperty="id">
+    	INSERT INTO member (nickname, email, user_pw, level, birthdate ,gender, reg_date, edit_date )
+    	VALUES (#{nickname}, #{email}, password(#{userPw}), 1, #{birthdate}, #{gender}, now(), now())
+    	</insert>
+ 
+	<!-- 아이디와 비밀번호가 일치하는 회원정보를 조회한다. -->
+    <select id="selectLoginInfo" parameterType="project.gatcha.model.Member" resultMap="member">
+        SELECT 
+        	id,nickname, email, user_pw, level, gender, birthdate, reg_date, edit_date
+         FROM member
+        WHERE email=#{email} AND user_pw=password(#{userPw})
+        ORDER BY id DESC
+        LIMIT 0, 1
+    </select>
+ 
+  	<!--  비밀번호 재발급:이메일 주소와 일치하는 비밀번호를 변경한다. -->
+    <update id="updateMemberPasswordByEmail" parameterType="project.gatcha.model.Member" >
+    	 UPDATE member SET user_pw=password(#{userPw}) , edit_date=now()
+    	WHERE email=#{email};
+    </update>
+    	
+
+    
+    <!-- 현재 로그인 중인 회원의 비밀번호를 검사한다. -->
+      <select id="selectMemberPasswordCount" parameterType="project.gatcha.model.Member" 
+      resultType="int">
+    	SELECT count(id) FROM member
+    	WHERE id = #{id} AND user_pw=password(#{userPw})
+    </select> 
+    
+    <!-- 일련번호에 의한 회원정보 조회 --> 
+    <select id="selectMember" parameterType="project.gatcha.model.Member" resultMap="member">
+    	SELECT id, nickname, email, user_pw, level, gender, birthdate, reg_date, edit_date 
+    	FROM member
+    	WHERE id = #{id};
+    </select> 
+ 
+    <!-- 회원 탈퇴 -->
+    	<update id="deleteMember" parameterType="project.gatcha.model.Member" >
+    	UPDATE member SET
+    		nickname = '탈퇴회원'  , email='out@member.people',  edit_date = now()
+    	WHERE id = #{id}
+    </update>
+    
+ 
+    <!-- 회원정보 수정 -->
+    <update id="updateMember" parameterType="project.gatcha.model.Member" >
+    	UPDATE member SET
+    		nickname = #{nickname}  , edit_date = now()
+    		<if test="newUserPw != null and newUserPw !=''">
+    		,user_pw = password(#{newUserPw}) 
+    		</if>
+    	WHERE id = #{id}
+    </update>
+ 
+    </mapper>
+    
+    

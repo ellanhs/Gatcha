@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 이 XML의 구조대로 구현될 클래스의 이름 => Impl클래스를 대체한다. -->
+<mapper namespace="FilmographyMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="filmography" type="project.gatcha.model.Filmography">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="id" column="id" />
+		<result property="kfaActorIdSum" column="kfa_actor_id_sum" />
+		<result property="directorKfaId" column="director_kfa_id" />
+		<result property="movieKfaId" column="movie_kfa_id" />
+		<result property="memberId" column="member_id" />
+		<result property="likes" column="likes" />
+	</resultMap>
+	
+	<!-- 정보 저장하기 -->
+	<insert id="insertFilmography" parameterType="project.gatcha.model.Filmography"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO filmography (
+		 kfa_actor_id_sum,  director_kfa_id,  movie_kfa_id  )
+		  VALUES (
+			#{kfaActorIdSum}, #{directorKfaId}, #{movieKfaId} )
+	</insert>
+   
+   
+   <!-- 개별 조회하기 -->
+	<select id="selectFilmography" parameterType="project.gatcha.model.Filmography"
+	 resultMap="filmography">
+		SELECT id, kfa_actor_id_sum , director_kfa_id, movie_kfa_id 
+		FROM filmography 
+		WHERE id=#{id}
+	</select>
+	<!-- 목록 조회하기 -->
+	<select id="selectFilmographyList" parameterType="project.gatcha.model.Filmography"
+	 resultMap="filmography">
+		SELECT id, kfa_actor_id_sum , director_kfa_id, movie_kfa_id 
+		FROM filmography 
+	</select>
+	
+
+	<!-- 삭제 하기 -->
+	<delete id="deleteFilmography" parameterType="project.gatcha.model.Filmography">
+		DELETE FROM filmography  WHERE id=#{id}
+	</delete>
+	
+	
+	<!-- 게시글 정보 수정하기 -->
+	<update id="updateFilmography" parameterType="project.gatcha.model.Filmography">
+		UPDATE filmography SET
+			kfa_actor_id_sum = #{kfaActorIdSum}, 
+			director_kfa_id = #{directorKfaId}, 
+			movie_kfa_id = #{movieKfaId} 
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 영화 상세페이지 감독/배우란을 채우기위해서 배우 코드를 조회 -->
+	<select id="selectFilmographyPeople" parameterType="project.gatcha.model.Filmography"
+	 resultMap="filmography">
+	 	SELECT kfa_actor_id_sum, director_kfa_id
+	 	FROM filmography
+	 	WHERE movie_kfa_id = #{movieKfaId}
+	 </select>
+	 
+	<!-- 영화 평가에 대한 likes=1 여부에 따른 영화ID, 감독ID를 조회합니다 -->
+	<select id="selectStatFilmo" parameterType="project.gatcha.model.Filmography" resultMap="filmography">
+		SELECT e.movie_kfa_id AS movieKfaId, director_kfa_id AS directorKfaId
+		FROM evaluate e
+	    Left Outer Join filmography f On f.movie_kfa_id = e.movie_kfa_id
+		WHERE likes=1 AND member_id =#{memberId}
+	</select>
+	
+	<!-- 영화 평가에 대한 likes=1 여부에 따른 배우ID 조합을 조회합니다 -->
+	<select id="selectStatFilmoActor" parameterType="project.gatcha.model.Filmography" resultMap="filmography">
+		SELECT kfa_actor_id_sum AS kfaActorIdSum
+		FROM evaluate e
+	    Left Outer Join filmography f On f.movie_kfa_id = e.movie_kfa_id
+		WHERE likes=1 AND member_id =#{memberId}
+	</select>
+</mapper>
+
+
+
+
+

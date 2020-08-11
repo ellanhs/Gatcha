@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 이 XML의 구조대로 구현될 클래스의 이름 => Impl클래스를 대체한다. -->
+<mapper namespace="EvaluateMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="evaluate" type="project.gatcha.model.Evaluate">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="id" column="id" />
+		<result property="myStarpoint" column="my_starpoint" />
+		<result property="myStarpointTotal" column="my_starpoint_total" />
+		<result property="myStarpointMean" column="my_starpoint_mean" />
+		<result property="view" column="view" />
+		<result property="likes" column="likes" />
+		<result property="dislike" column="dislike" />
+		<result property="diary" column="diary" />
+		<result property="regDate" column="reg_date" />
+		<result property="editDate" column="edit_date" />
+		<result property="memberId" column="member_id" />
+		<result property="memberIdCount" column="member_id_count" />
+		<result property="movieKfaId" column="movie_kfa_id" />
+	</resultMap>
+	
+	<!-- 평가가 처음에 없을시에 처리해주는 SQL문  -->
+	<insert id="insertEVFirst" parameterType="project.gatcha.model.Evaluate"
+		useGeneratedKeys="true" keyProperty="id">
+	INSERT INTO evaluate (evaluate.likes,dislike,my_starpoint, reg_date, edit_date, member_id, movie_kfa_id ) 
+		  VALUES 
+		  <if test="evaluate.likes != null">
+		  				(#{likes},"0","0",
+		  </if>
+		  
+		  <if test="dislike != null">
+		  				("0", #{dislike}, "0",
+		  </if>
+		  
+		  <if test="my_starpoint != null">
+		  				("0","0", #{my_starpoint},
+		  </if>
+		   now(), now(), #{memberId}, #{movieKfaId})
+		  
+	</insert>
+	
+	<insert id="insertEvaluateDiary" parameterType="project.gatcha.model.Evaluate"
+		useGeneratedKeys="true" keyProperty="id">
+	INSERT INTO evaluate ( my_starpoint, view, likes, dislike, diary, reg_date, edit_date, member_id, movie_kfa_id ) 
+		  VALUES 
+		  ( null, null, null, null, #{diary}, now(), now(), #{memberId}, #{movieKfaId}) 
+	</insert>
+	
+	<insert id="insertEvaluateMayNoOne" parameterType="project.gatcha.model.Evaluate"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO evaluate (
+		 likes, dislike, my_starpoint, reg_date, edit_date, member_id, movie_kfa_id )  
+		  VALUES (#{likes}, #{dislike}, #{myStarpoint}, now(), now(), #{memberId}, #{movieKfaId})	
+		
+	</insert>
+	
+	<update id="updateEvaluateChoice" parameterType="project.gatcha.model.Evaluate">
+		UPDATE evaluate SET
+		  		likes = #{likes},
+		  		my_starpoint= #{myStarpoint}, 
+				dislike=#{dislike},
+				edit_date=now() 
+		WHERE member_id = #{memberId} AND movie_kfa_id = #{movieKfaId}
+	</update>
+	
+	<update id="updateEvaluateDislike" parameterType="project.gatcha.model.Evaluate">
+		UPDATE evaluate SET
+				dislike=#{dislike}, 
+				edit_date=now()
+		WHERE member_id = #{memberId} AND movie_kfa_id = #{movieKfaId}
+	</update>
+	
+	<update id="updateEvaluateMyStarPoint" parameterType="project.gatcha.model.Evaluate">
+		UPDATE evaluate SET
+		  		my_starpoint= #{myStarpoint}, 
+		  		edit_date=now()
+		WHERE member_id = #{memberId} AND movie_kfa_id = #{movieKfaId}
+	</update>
+	<update id="updateEvaluateLikes" parameterType="project.gatcha.model.Evaluate">
+		UPDATE evaluate SET
+		  		likes = #{likes}, 
+		  		edit_date=now()  
+		WHERE member_id = #{memberId} AND movie_kfa_id = #{movieKfaId}
+	</update>
+	<!-- 다이어리 정보 수정하기 -->
+	<update id="updateEvaluateDiary" parameterType="project.gatcha.model.Evaluate">
+		UPDATE evaluate SET
+		  		diary = #{diary}, 
+		  		edit_date=now() 
+		WHERE member_id = #{memberId} AND movie_kfa_id = #{movieKfaId}
+	</update>
+	
+	<!-- 다이어리 정보 Null로 수정(삭제)하기 -->
+	<update id="updateEvaluateDiaryNull" parameterType="project.gatcha.model.Evaluate">
+		UPDATE evaluate SET
+		  		diary = NULL, 
+		  		edit_date=now() 
+		WHERE member_id = #{memberId} AND movie_kfa_id = #{movieKfaId}
+	</update>
+	
+	<select id="selectEvaluateCount" parameterType="project.gatcha.model.Evaluate"
+	 resultType="int">
+		SELECT COUNT(id)
+		FROM evaluate
+		WHERE member_id = #{memberId} AND movie_kfa_id = #{movieKfaId}
+	</select>
+	
+	<select id="selectEvaluateOneByMemberKFAId" parameterType="project.gatcha.model.Evaluate"
+	 resultMap="evaluate">
+		SELECT id, my_starpoint, view, likes, dislike, diary, reg_date, edit_date, member_id, movie_kfa_id 
+		FROM evaluate 
+		WHERE member_id = #{memberId} AND movie_kfa_id = #{movieKfaId}
+	</select>
+	
+	<select id="selectEvaluateOneByMemberId" parameterType="project.gatcha.model.Evaluate"
+	 resultMap="evaluate">
+		SELECT id, my_starpoint, view, likes, dislike, diary, reg_date, edit_date, member_id, movie_kfa_id 
+		FROM evaluate 
+		WHERE member_id = #{memberId}
+	</select>
+	
+	<!-- 영화에 대한 total, mean, hit 별점을 조회합니다 -->
+	<select id="selectEvaluateStar" parameterType="project.gatcha.model.Evaluate" resultMap="evaluate">
+	SELECT COUNT(member_id) AS member_id_count, SUM(my_starpoint) AS my_starpoint_total, movie_kfa_id , 
+    ROUND( AVG(my_starpoint), 2) AS my_starpoint_mean
+	FROM evaluate
+	Where movie_kfa_id = #{movieKfaId}  
+	</select>
+	
+	
+	<select id="selectEvaluateCountLikes" parameterType="project.gatcha.model.Evaluate"
+	 resultType="int">
+	SELECT COUNT(likes)
+		FROM evaluate 
+		WHERE likes =1 AND member_id = #{memberId} 
+	</select>
+	
+</mapper>
+
+
+
+
+

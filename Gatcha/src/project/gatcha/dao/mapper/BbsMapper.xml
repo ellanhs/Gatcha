@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 이 XML의 구조대로 구현될 클래스의 이름 => Impl클래스를 대체한다. -->
+<mapper namespace="BbsMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="bbs" type="project.gatcha.model.Bbs">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="id" column="id" />
+		<result property="subject" column="subject" />
+		<result property="content" column="content" />
+		<result property="comment" column="comment" />
+		<result property="regDate" column="reg_date" />
+		<result property="editDate" column="edit_date" />
+		<result property="memberId" column="member_id" />
+		<result property="nickname" column="nickname" />
+	</resultMap>
+	
+	<!-- 게시글 정보 저장하기 -->
+	<insert id="insertBbs" parameterType="project.gatcha.model.Bbs"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO bbs (
+		 subject, content, comment, reg_date, edit_date, member_id )
+		  VALUES (
+			#{subject}, #{content},#{comment}, now(), now(), #{memberId} )
+	</insert>
+   
+   
+   <!-- 게시물 목록 조회하기 -->
+	<select id="selectBbsList" parameterType="project.gatcha.model.Bbs"
+	 resultMap="bbs">
+		SELECT id, subject, content, comment, 
+			   DATE_FORMAT(reg_date, '%Y-%m-%d %H:%i:%s') as reg_date, 
+			   DATE_FORMAT(edit_date, '%Y-%m-%d %H:%i:%s') as edit_date, 
+			   member_id
+		FROM bbs 
+	</select>
+	
+	<!-- 게시물 하나에 대한 정보를 조회한다. -->
+	<select id="selectBbs" 
+		parameterType="project.gatcha.model.Bbs" 
+		resultMap="bbs">
+		SELECT id, subject, content, comment, 
+			   DATE_FORMAT(reg_date, '%Y-%m-%d %H:%i:%s') as reg_date, 
+			   DATE_FORMAT(edit_date, '%Y-%m-%d %H:%i:%s') as edit_date, 
+			   member_id
+		FROM   bbs
+		WHERE  id=#{id}
+	</select>
+	
+	<!-- 게시글 삭제 하기 -->
+	<delete id="deleteBbs" parameterType="project.gatcha.model.Bbs">
+		DELETE FROM bbs WHERE id=#{id}
+	</delete>
+	
+	<!-- 게시글 정보 수정하기 -->
+	<update id="updateBbs" parameterType="project.gatcha.model.Bbs">
+		UPDATE bbs SET
+			subject=#{subject},
+			content=#{content},
+			edit_date=now()
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 게시글 정보 수정하기 -->
+	<update id="updateBbsComment" parameterType="project.gatcha.model.Bbs">
+		UPDATE bbs SET
+			comment=#{comment},	
+			edit_date=now()
+		WHERE id=#{id}
+	</update>
+
+	<!-- 이전글 정보를 조회한다. -->
+	<select id="selectPrevBbs" 
+		parameterType="project.gatcha.model.Bbs" 
+		resultMap="bbs">
+		SELECT bbs.id as id, subject, content, comment, 
+			   DATE_FORMAT(bbs.reg_date, '%Y-%m-%d %H:%i:%s') as reg_date, 
+			   DATE_FORMAT(bbs.edit_date, '%Y-%m-%d %H:%i:%s') as edit_date, 
+			   member_id, member.nickname as nickname 
+		FROM   bbs 
+		LEFT OUTER JOIN member ON bbs.member_id=member.id 
+		WHERE  bbs.id &lt; #{id} 
+		ORDER  BY bbs.id DESC 
+		LIMIT  0, 1
+	</select>
+
+	<!-- 다음글 정보를 조회한다. -->
+	<select id="selectNextBbs" 
+		parameterType="project.gatcha.model.Bbs" 
+		resultMap="bbs">
+		SELECT bbs.id as id, subject, content, comment, 
+			   DATE_FORMAT(bbs.reg_date, '%Y-%m-%d %H:%i:%s') as reg_date, 
+			   DATE_FORMAT(bbs.edit_date, '%Y-%m-%d %H:%i:%s') as edit_date, 
+			   member_id, member.nickname as nickname 
+		FROM   bbs 
+		LEFT OUTER JOIN member ON bbs.member_id=member.id 
+		WHERE  bbs.id &gt; #{id} 
+		ORDER  BY bbs.id ASC 
+		LIMIT  0, 1
+	</select>
+	
+	<!-- 게시글 정보를 조회한다. -->
+	<select id="selectJoinBbs" 
+		parameterType="project.gatcha.model.Bbs" 
+		resultMap="bbs">
+		SELECT bbs.id as id, subject, content, comment, 
+			   DATE_FORMAT(bbs.reg_date, '%Y-%m-%d %H:%i:%s') as reg_date, 
+			   DATE_FORMAT(bbs.edit_date, '%Y-%m-%d %H:%i:%s') as edit_date, 
+			   member_id, member.nickname as nickname 
+		FROM   bbs 
+		LEFT OUTER JOIN member ON bbs.member_id=member.id 
+		WHERE  bbs.id = #{id} 
+	</select>
+
+
+	<!-- 게시물 목록을 조회한다. -->
+	<select id="selectBbsJoinList" parameterType="project.gatcha.model.Bbs" 
+		resultMap="bbs">
+		SELECT bbs.id as id, subject, content, comment, 
+			   DATE_FORMAT(bbs.reg_date, '%Y-%m-%d %H:%i:%s') as reg_date, 
+			   DATE_FORMAT(bbs.edit_date, '%Y-%m-%d %H:%i:%s') as edit_date, 
+			   member_id, member.nickname as nickname 
+		FROM   bbs 
+		LEFT OUTER JOIN member ON bbs.member_id=member.id 
+		
+		<where>
+				<if test="subject != null or content != null">
+						<if test="subject != null">
+							subject LIKE concat('%', #{subject}, '%') 
+						</if>
+						<if test="content != null">
+							OR content LIKE concat('%', #{content}, '%') 
+						</if>
+				</if>
+				<if test="nickname != null">
+					member.nickname LIKE concat('%', #{nickname}, '%') 
+				</if>
+		</where>
+		ORDER  BY bbs.id DESC 
+		LIMIT #{limitStart}, #{listCount}
+	</select>
+	
+	<!-- 전체 게시물 수를 조회한다. -->
+	<select id="selectBbsJoinCount"
+		parameterType="project.gatcha.model.Bbs"
+		resultType="int">
+		SELECT COUNT(bbs.id) FROM bbs 
+		LEFT OUTER JOIN member ON bbs.member_id = member.id 
+				<where>
+				<if test="subject != null or content != null">
+						<if test="subject != null">
+							subject LIKE concat('%', #{subject}, '%') 
+						</if>
+						<if test="content != null">
+							OR content LIKE concat('%', #{content}, '%') 
+						</if>
+				</if>
+				<if test="nickname != null">
+					member.nickname LIKE concat('%', #{nickname}, '%') 
+				</if>
+		</where>
+		ORDER  BY bbs.id DESC 
+	</select>
+
+	
+	<!-- 자신의 게시물인지 검사한다 -->
+	<select id="selectBbsCountByMemberId"
+		parameterType="project.gatcha.model.Bbs"
+		resultType="int">
+		SELECT COUNT(id) FROM bbs
+		WHERE id=#{id} AND member_id=#{memberId}
+	</select>
+	
+
+	<!-- 특정 회원과의 게시물 참조 해제하기 - Null로 하던지 미리 지정된 특정 회원 아이디로 입력 -->
+	<update id="updateBbsMemberOut" parameterType="project.gatcha.model.Bbs">
+		UPDATE bbs
+		SET    member_id=NULL, edit_date=now() 
+		WHERE  member_id=#{memberId}
+	</update>
+
+
+	<!-- 특정 회원과의 참조된 게시글 삭제 하기 - 비권장사항이지만 참조용으로 만듬 -->
+	<delete id="deleteBbsMemberOut" parameterType="project.gatcha.model.Bbs">
+		DELETE FROM bbs WHERE member_id=#{memberId}
+	</delete>
+	
+		
+</mapper>
+
+
+
+
+

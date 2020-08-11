@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 이 XML의 구조대로 구현될 클래스의 이름 => Impl클래스를 대체한다. -->
+<mapper namespace="PeopleMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="People" type="project.gatcha.model.People">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="kfaId" column="kfa_id" />
+		<result property="koficId" column="kofic_id" />
+		<result property="name" column="name" />
+		<result property="role" column="role" />
+		<result property="regDate" column="reg_date" />
+		<result property="editDate" column="edit_date" />
+		<result property="peopleP" column="people_p" />
+		<result property="keyword" column="keyword" />
+	</resultMap>
+	
+    <!-- 영화 파일정보를 저장한다 -->
+	<insert id="insertPeople" parameterType="project.gatcha.model.People" 
+		useGeneratedKeys="false">
+		INSERT INTO people (
+			kfa_id, kofic_id, name, role, reg_date, edit_date 
+		) VALUES (
+			#{kfaId}, #{koficId}, #{name}, #{role}, now(), now() 
+		)
+	</insert>
+	
+	<!-- 일련번호에 의한 영화 파일정보 조회 -->
+    <select id="selectPeople" parameterType="project.gatcha.model.People" 
+    	resultMap="People">
+        SELECT 
+        	kfa_id, kofic_id, name, role, reg_date, edit_date 
+        FROM people 
+        WHERE kfa_id=#{kfaId}
+    </select>
+    
+    <!-- 영화 파일정보 전체 조회 -->
+    <select id="selectPeopleList" parameterType="project.gatcha.model.People" 
+    	resultMap="People">
+        SELECT 
+       		kfa_id, kofic_id, name, role, reg_date, edit_date 
+        FROM people 
+    </select>
+
+	<!-- 영화 파일정보를 변경한다 -->
+	<update id="updatePeople" parameterType="project.gatcha.model.People">
+		UPDATE people SET 
+			kofic_id=#{koficId}, name=#{name}, role=#{role}, edit_date=now() 
+        WHERE kfa_id=#{kfaId}
+	</update>
+	
+	<!-- 영화 파일정보를 삭제한다-->
+	<delete id="deletePeople" parameterType="project.gatcha.model.People">
+		DELETE FROM people WHERE kfa_id=#{kfaId};
+	</delete>
+	
+	 <select id="selectPeopleImg" parameterType="project.gatcha.model.People" 
+    	resultMap="People">
+		SELECT 
+        	p.kfa_id as kfa_id , p.name as name, pi.profile_url as people_p
+        FROM people p
+        LEFT OUTER JOIN people_image pi ON (p.kfa_id = pi.people_kfa_id) 
+        WHERE p.kfa_id=#{kfaId}
+        LIMIT 0,1
+    </select>
+    
+    
+     <select id="selectPeopleCodeByKeyword" parameterType="project.gatcha.model.People" 
+    	resultMap="People">
+		
+    </select>
+
+</mapper>
+
+
+
+
+

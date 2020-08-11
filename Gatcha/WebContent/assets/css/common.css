@@ -1,0 +1,42 @@
+			/*상단 메뉴바 설정에 의한 띄어진 공간 비우기*/  
+			body{
+				padding-top: 50.5px;
+			}
+			/*로고 이미지 관련 꾸밈*/
+			.navbar-brand>img{
+				width:30px;
+				height:30px;
+			}
+			/*로고 이미지 관련 꾸밈*/
+			.navbar-brand{
+				padding:10px 20px;
+				width:60px;
+				height:40px;
+			}
+			/*상단, 좌측 메뉴바 제목 글씨 크기*/
+			ul > li > a{
+				font-size:18px;
+			}
+			/*상단, 좌측 메뉴바 랭킹 글씨 크기*/
+			ol > li > a{
+				font-size:14px;
+			}
+			/*상단 사용자 글씨 크기*/
+			.navbar-right > li > a{
+				font-size:16px;
+			}
+			/*상단 메뉴바 선 색깔 (기본은 투명 지금은 회색,)*/
+			.navbar-fixed-top {
+				border-bottom-color: #EEEEEE; 
+			}
+			/* 사이드바 메뉴 공간 확보*/
+			ol.nav li{
+				width :100%;
+			}
+			
+			div.navbar >  ul.nav > li{
+				width :100%;
+			}
+			
+			
+			

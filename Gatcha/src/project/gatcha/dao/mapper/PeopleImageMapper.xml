@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 이 XML의 구조대로 구현될 클래스의 이름 => Impl클래스를 대체한다. -->
+<mapper namespace="PeopleImageMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="people_image" type="project.gatcha.model.PeopleImage">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="id" column="id" />
+		<result property="peopleKfaId" column="people_kfa_id" />
+		<result property="profileUrl" column="profile_url" />
+		<result property="regDate" column="reg_date" />
+		<result property="editDate" column="edit_date" />
+	</resultMap>
+	 <!-- 영화 장르 정보를 저장한다 -->
+	<insert id="insertPeopleImage" parameterType="project.gatcha.model.PeopleImage" 
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO people_image (
+			people_kfa_id, profile_url, reg_date, edit_date 
+		) VALUES (
+			#{peopleKfaId}, #{profileUrl},  now(), now() 
+		)
+	</insert>
+	
+	<!-- 일련번호에 의한 영화 장르 정보 조회 -->
+    <select id="selectPeopleImage" parameterType="project.gatcha.model.PeopleImage" 
+    	resultMap="people_image">
+        SELECT 
+        	id, people_kfa_id, profile_url, reg_date, edit_date  
+        FROM people_image 
+        WHERE id=#{id}
+    </select>
+    
+    <!-- 영화 장르 정보 전체 조회 -->
+    <select id="selectPeopleImageList" parameterType="project.gatcha.model.PeopleImage" 
+    	resultMap="people_image">
+        SELECT 
+        	id, people_kfa_id, profile_url, reg_date, edit_date  
+        FROM people_image
+    </select>
+
+	<!-- 영화 장르 정보를 변경한다 -->
+	<update id="updatePeopleImage" parameterType="project.gatcha.model.PeopleImage">
+		UPDATE people_image SET 
+			people_kfa_id=#{peopleKfaId}, profile_url=#{profileUrl}, edit_date=now() 
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 영화 장르 정보를 삭제한다-->
+	<delete id="deletePeopleImage" parameterType="project.gatcha.model.PeopleImage">
+		DELETE FROM people_image WHERE id=#{id};
+	</delete>
+
+	<!-- 배우 ID별로 배우 이미지를 조회 -->
+	<select id="selectPeopleImageAct" parameterType="project.gatcha.model.PeopleImage"
+		resultMap="people_image">
+		SELECT profile_url
+		FROM people_image
+		where people_kfa_id=#{peopleKfaId}
+		limit 0,1
+	</select>
+</mapper>
+
+
+
+
+

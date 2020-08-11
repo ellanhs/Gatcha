@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 이 XML의 구조대로 구현될 클래스의 이름 => Impl클래스를 대체한다. -->
+<mapper namespace="BoxofficeMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="Boxoffice" type="project.gatcha.model.Boxoffice">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="kfaId" column="kfa_id" />
+		<result property="title" column="title" />
+		<result property="thumbnail" column="thumbnail" />
+		<result property="view" column="view" />
+		<result property="like" column="ev_like" />
+		<result property="dislike" column="dislike" />
+		<result property="myStarpoint" column="my_starpoint" />
+		<result property="memberId" column="evmember_id" />
+		<result property="genreId" column="genre_id" />
+		<result property="poster" column="poster" />
+		<result property="trailer" column="tralier" />
+		<result property="stilcut" column="stilcut" />
+		<result property="etcimg" column="etcImg" />
+		<result property="diary" column="diary" />
+		<result property="rank" column="rank" />
+		<result property="genreName" column="genre_name" />
+		<result property="movieKfaId" column="movie_kfa_id" />
+		<result property="directorName" column="director_name" />
+		<result property="actorName1" column="actorname1" />
+		<result property="actorName2" column="actorname2" />
+		<result property="actorName3" column="actorname3" />
+		<result property="actorName4" column="actorname4" />
+		<result property="age" column="age" />
+		<result property="country" column="country" />
+		<result property="runtime" column="runtime" />
+	
+	
+	</resultMap>
+	
+	<!-- 주어진 영화 장르에 대하여 조회를 수행합니다 .  -->
+	 <select id="selectMEF_List" parameterType="project.gatcha.model.Boxoffice" resultMap="Boxoffice">
+	 
+	 	SELECT  kfa_id, m.title,
+							(SELECT file_url FROM movie_file mf
+								WHERE(m.kfa_id = mf.movie_kfa_id) AND (file_category = "p") limit 0,1)
+								AS poster,
+					ev.view as view, ev.likes as ev_like, ev.dislike as dislike,  ev.my_starpoint as my_starpoint,mhg.genre_id as genre_id,g.genre_name as genre_name
+		FROM movie m
+		LEFT OUTER JOIN evaluate ev ON (m.kfa_id = ev.movie_kfa_id) AND (ev.member_id = #{memberId} )
+			
+			<if test="genreId ==0">
+				<where>
+					dislike ="0" OR dislike is NULL
+				</where>
+			</if>
+			
+			<if test="genreId !=0">
+				INNER JOIN movie_has_genre mhg ON(m.kfa_id = mhg.movie_kfa_id)
+				INNER JOIN genre g ON(mhg.genre_id = g.id)
+				<where>
+			 		genre_id = #{genreId} AND (dislike ="0" OR dislike is NULL) 
+				</where>
+			</if>
+			
+		LIMIT 0,1
+		
+   	</select>
+   	
+   	<!-- 사진및 영화섬네일 받아오기 -->
+	<!-- 영화 코드값을 파라미터로 하여서 각각 카테고리가 다른 URL을 불러내는 쿼리문 -->
+	<!-- 파일 카테고리가 정립됨.  1 포스터(poster) p , 2 스틸컷(stilcut) s ,  3. 트레일러(tralier) t , 4 기타(etcImg) e -->
+   	 <select id="selectMEF_fileByKfaId" parameterType="project.gatcha.model.Boxoffice" resultMap="Boxoffice">
+   	 	
+   	 	SELECT  kfa_id,
+		(SELECT file_url FROM movie_file mf
+			WHERE(m.kfa_id = mf.movie_kfa_id) AND (file_category = "p") limit 0,1)AS poster,
+		
+		(SELECT file_url FROM movie_file mf
+			WHERE(m.kfa_id = mf.movie_kfa_id) AND (file_category = "s") limit 0,1)AS stilcut,
+			
+		(SELECT file_url FROM movie_file mf
+			WHERE(m.kfa_id = mf.movie_kfa_id) AND (file_category = "t") limit 0,1)AS tralier
+		FROM movie m
+		WHERE m.kfa_id = #{kfaId}
+   	 	
+   	 </select>
+   	
+   	<!-- 두번째 모달에 넣을 기능, trailer 불러오기 -->
+   	 <select id="selectMEF_fileByKfaIdSecond" parameterType="project.gatcha.model.Boxoffice" resultMap="Boxoffice">
+   		SELECT file_url as tralier
+		FROM movie_file
+		WHERE movie_kfa_id = #{kfaId} AND file_category = "t"
+   	 </select>
+   	 
+   	 
+   	 
+   	 <!--  영화 제목별 검색을 하기위해서  -->
+   	 <!--  추후에 다이다믹 SQL을 적용해서 다른 조건으로도 검색이 가능하게끔 확장할것 -->
+   	  <select id="selectMEF_ListByTitle" parameterType="project.gatcha.model.Boxoffice" resultMap="Boxoffice"> 
+   	 	SELECT  kfa_id, m.title,
+							(SELECT file_url FROM movie_file mf
+								WHERE(m.kfa_id = mf.movie_kfa_id) AND (file_category = "p") limit 0,1)
+								AS poster,
+					ev.view as view, ev.likes as ev_like, ev.dislike as dislike,  ev.my_starpoint as my_starpoint
+		FROM movie m
+		
+		LEFT OUTER JOIN evaluate ev ON (m.kfa_id = ev.movie_kfa_id) AND (ev.member_id = #{memberId} )
+			
+			WHERE  title LIKE CONCAT('%',#{title},'%')
+			 
+		</select>
+		
+		
+	<!-- 영화 리스트를 조회합니다   --> 
+	
+	 <select id="selectMEF_ListByLike" parameterType="project.gatcha.model.Boxoffice" resultMap="Boxoffice">
+	 
+	 	SELECT  kfa_id, m.title,
+							(SELECT file_url FROM movie_file mf
+								WHERE(m.kfa_id = mf.movie_kfa_id) AND (file_category = "p") limit 0,1)
+								AS poster,
+					ev.view as view, ev.likes as ev_like, ev.dislike as dislike,  ev.my_starpoint as my_starpoint
+		FROM movie m
+		
+		LEFT OUTER JOIN evaluate ev ON (m.kfa_id = ev.movie_kfa_id) AND (ev.member_id = #{memberId} )
+			
+		WHERE ev.likes="1"
+		
+   	</select>
+   	
+   	<select id="selectMEF_ListByDislike" parameterType="project.gatcha.model.Boxoffice" resultMap="Boxoffice">
+	 
+	 	SELECT  kfa_id, m.title,
+							(SELECT file_url FROM movie_file mf
+								WHERE(m.kfa_id = mf.movie_kfa_id) AND (file_category = "p") limit 0,1)
+								AS poster,
+					ev.view as view, ev.likes as ev_like, ev.dislike as dislike,  ev.my_starpoint as my_starpoint
+		FROM movie m
+		
+		LEFT OUTER JOIN evaluate ev ON (m.kfa_id = ev.movie_kfa_id) AND (ev.member_id = #{memberId} )
+			
+		WHERE ev.dislike="1"
+		
+   	</select>
+
+   	 <!--  배우 검색을 하기위한 명령문입니다. 검색어를 받아서 검색어와 연관된 레코드를 찾아내어 배우 코드를 얻어낸후
+   	  필모그래피의 kfa_actor_id_sum의 코드를 8자리로 뜯어서 비교하여 일치하는 레코드의 영화 코드를 받아 기존 selectMEF_List에 접목하여 WHERE IN 조건으로 조회하게 하였습니다.  -->
+   	 <select id="selectMEF_ListSearchByActor" parameterType="project.gatcha.model.Boxoffice" resultMap="Boxoffice">
+   	 
+       
+        SELECT m.kfa_id , m.title, (SELECT file_url FROM movie_file mf
+                                WHERE(m.kfa_id = mf.movie_kfa_id) AND (file_category = "p") limit 0,1)
+                                AS poster,
+                    ev.view as view, ev.likes as ev_like, ev.dislike as dislike,  ev.my_starpoint as my_starpoint
+        FROM filmography fff
+        LEFT OUTER JOIN movie m ON (m.kfa_id = fff.movie_kfa_id) 
+        LEFT OUTER JOIN evaluate ev ON (m.kfa_id = ev.movie_kfa_id) AND (ev.member_id = 9 )
+ 
+
+        WHERE  
+        SUBSTRING(fff.kfa_actor_id_sum,1,8) 
+         IN
+        (
+        SELECT peo.kfa_id 
+        FROM people peo
+        WHERE peo.role = '배우'
+        AND peo.name LIKE concat('%',#{keyword},'%'))
+        
+        OR
+
+        SUBSTRING(fff.kfa_actor_id_sum,10,8) IN
+
+        (
+        SELECT peo.kfa_id 
+        FROM people peo
+        WHERE peo.role = '배우'
+        AND peo.name LIKE concat('%',#{keyword},'%') )
+
+
+        OR
+
+        SUBSTRING(fff.kfa_actor_id_sum,19,8) IN
+
+        (
+        SELECT peo.kfa_id 
+        FROM people peo
+        WHERE peo.role = '배우'
+        AND peo.name LIKE concat('%',#{keyword},'%') )
+
+        OR
+
+        SUBSTRING(fff.kfa_actor_id_sum,28,8) IN
+
+        (
+        SELECT peo.kfa_id 
+        FROM people peo
+        WHERE peo.role = '배우'
+        AND peo.name LIKE concat('%',#{keyword},'%') )
+
+
+       
+   	 </select> 
+   	 
+   	 
+   	 
+   	 
+   	 <select id="boxofficeCarousel" parameterType="project.gatcha.model.Boxoffice" resultMap="Boxoffice"> 
+   	 SELECT mhg.movie_kfa_id as kfa_id , group_concat(ge.genre_name) as genre_name, box.boxoffice AS rank
+        ,m.title, m.year,m.age, m.runtime, m.country , (SELECT file_url FROM movie_file mf
+                                WHERE(m.kfa_id = mf.movie_kfa_id) AND (file_category = "s") limit 0,1)
+                                AS stilcut,
+                                (SELECT po.name 
+                                FROM people po
+                                WHERE po.kfa_id = (
+                                SELECT director_kfa_id
+                                FROM filmography fff
+                                WHERE fff.movie_kfa_id = mhg.movie_kfa_id))
+                                                          AS director_name,
+                                (SELECT po.name 
+                                FROM people po
+                                WHERE po.kfa_id = (
+                                SELECT SUBSTRING(fff.kfa_actor_id_sum,1,8)
+                                FROM filmography fff
+                                WHERE fff.movie_kfa_id =mhg.movie_kfa_id ))
+                                                            AS actorname1,
+
+                                (SELECT po.name 
+                                FROM people po
+                                WHERE po.kfa_id = (
+                                SELECT SUBSTRING(fff.kfa_actor_id_sum,10,8)
+                                FROM filmography fff
+                                WHERE fff.movie_kfa_id =mhg.movie_kfa_id ))
+                                                            AS actorname2,
+
+                                (SELECT po.name 
+                                FROM people po
+                                WHERE po.kfa_id = (
+                                SELECT SUBSTRING(fff.kfa_actor_id_sum,19,8)
+                                FROM filmography fff
+                                WHERE fff.movie_kfa_id =mhg.movie_kfa_id ))
+                                                            AS actorname3,
+
+                                (SELECT po.name 
+                                FROM people po
+                                WHERE po.kfa_id = (
+                                SELECT SUBSTRING(fff.kfa_actor_id_sum,28,8)
+                                FROM filmography fff
+                                WHERE fff.movie_kfa_id =mhg.movie_kfa_id )) 
+                                                            AS actorname4
+
+
+
+        FROM movie_has_genre mhg
+        INNER JOIN genre ge ON ge.id = mhg.genre_id
+        INNER JOIN boxoffice box ON box.movie_kfa_id = mhg.movie_kfa_id
+        INNER JOIN movie m ON m.kfa_id = mhg.movie_kfa_id
+
+
+        WHERE mhg.movie_kfa_id IN(
+
+        SELECT m.kfa_id 
+        FROM movie m
+        INNER JOIN boxoffice box ON box.movie_kfa_id = m.kfa_id
+        
+        )
+        GROUP BY mhg.movie_kfa_id
+        ORDER BY rank ASC
+        LIMIT 0,5
+    </select>
+    
+    
+    <select id="boxofficeList" parameterType="project.gatcha.model.Boxoffice" resultMap="Boxoffice"> 
+    	SELECT mhg.movie_kfa_id as kfa_id, group_concat(ge.genre_name) as genre_name, box.boxoffice AS rank
+        ,m.title, m.year,(SELECT file_url FROM movie_file mf
+                                WHERE(m.kfa_id = mf.movie_kfa_id) AND (file_category = "p") limit 0,1)
+                                AS poster,
+                                m.runtime,
+        ev.view as view, ev.likes as ev_like, ev.dislike as dislike,  ev.my_starpoint as my_starpoint
+        FROM movie_has_genre mhg
+        INNER JOIN genre ge ON ge.id = mhg.genre_id
+        INNER JOIN boxoffice box ON box.movie_kfa_id = mhg.movie_kfa_id
+        INNER JOIN movie m ON m.kfa_id = mhg.movie_kfa_id
+        LEFT OUTER JOIN evaluate ev ON (m.kfa_id = ev.movie_kfa_id) AND (ev.member_id = #{memberId} )
+        WHERE mhg.movie_kfa_id IN(
+
+        SELECT m.kfa_id 
+        FROM movie m
+        INNER JOIN boxoffice box ON box.movie_kfa_id = m.kfa_id
+        
+        )
+        GROUP BY mhg.movie_kfa_id
+    
+    </select>
+   	 
+   	 
+   	 
+	
+</mapper>

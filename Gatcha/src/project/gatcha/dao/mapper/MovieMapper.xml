@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+    <mapper namespace="MovieMapper">
+    
+    <resultMap id="movie" type="project.gatcha.model.Movie">
+    	<result property="kfaId" column="kfa_id" />
+    	<result property="koficId" column="kofic_id" />
+    	<result property="title" column="title" />
+    	<result property="year" column="year" />
+    	<result property="country" column="country" />
+    	<result property="age" column="age" />
+    	<result property="runtime" column="runtime" />
+    	<result property="context" column="context" />
+    	<result property="regDate" column="reg_date" />
+    	<result property="editDate" column="edit_date" />
+    	<result property="starpointMean" column="starpoint_mean" />
+    	<result property="starpointTotal" column="starpoint_total" />
+    	<result property="starpointHit" column="starpoint_hit" />
+    	
+    </resultMap>
+    
+    <!-- 영화  추가 -->
+    <insert id="insertMovie" parameterType="project.gatcha.model.Movie">
+    	INSERT INTO movie (kfa_id, kofic_id, title, year, country, age, runtime, 
+    	  context, reg_date, edit_date, starpoint_mean, starpoint_total, starpoint_hit)
+    	VALUES (#{kfaId}, #{koficId}, #{title}, #{year}, #{country}, #{age}, #{runtime},
+    	#{context}, now(),now(), #{starpointMean}, #{starpointTotal}, #{starpointHit})
+    </insert>
+    
+    <!-- 영화 수정 -->
+    
+    <update id="updateMovie" parameterType="project.gatcha.model.Movie">
+    	UPDATE movie SET 
+    	
+    	title =#{title},
+    	year=#{year},
+    	country =#{country},
+    	age =#{age},
+    	runtime = #{runtime}, 
+    	context = #{context},
+    	edit_date =now(),
+    	starpoint_mean =#{starpointMean},
+    	starpoint_total =#{starpointTotal},
+    	starpoint_hit =#{starpointHit}
+    	WHERE kfa_id=#{kfaId}
+    		
+    </update>
+    
+    <!-- 영화 삭제 -->
+    <delete id="deleteMovie" parameterType="project.gatcha.model.Movie">
+    DELETE FROM movie WHERE kfa_id=#{kfaId}
+    </delete>
+    
+    
+    <!-- 영화 목록의 수를 조회합니다. 1이상이 아니면 조회를 하지 않도록 하기위한 조치입니다. -->
+    <select id="selectMovieListCount" parameterType="project.gatcha.model.Movie" resultType="int">
+    
+    	SELECT COUNT(kfa_id)
+    	FROM movie
+    	
+    </select>
+    
+    <!-- 영화 목록 -->
+    <select id="selectMovieList" parameterType="project.gatcha.model.Movie" resultMap="movie">
+    	SELECT kfa_id, kofic_id, title, year, country, age, runtime, 
+    	  context, reg_date, edit_date, starpoint_mean, starpoint_total, starpoint_hit
+    	FROM movie
+    	
+   	</select>
+    
+    <!-- 영화 하나 조회 -->
+    <select id="selectMovieOne" parameterType="project.gatcha.model.Movie" resultMap="movie">
+    	SELECT kfa_id, kofic_id, title, year, country, age, runtime, 
+    	  context, reg_date, edit_date, starpoint_mean, starpoint_total, starpoint_hit
+    	FROM movie
+    	WHERE kfa_id = #{kfaId}
+	</select>
+	
+	<!-- 영화에 대한 total, mean, hit 별점을 등록합니다 -->
+	<update id="updateEvaluateStar" parameterType="project.gatcha.model.Movie">
+		Update movie SET
+    	starpoint_total=#{starpointTotal}, edit_date=now(), starpoint_hit=#{starpointHit}, starpoint_mean=#{starpointMean} 
+		Where kfa_id =#{kfaId}
+	</update>
+	   
+</mapper>
+    
+    

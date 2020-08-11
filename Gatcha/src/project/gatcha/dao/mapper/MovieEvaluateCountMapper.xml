@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 이 XML의 구조대로 구현될 클래스의 이름 => Impl클래스를 대체한다. -->
+<mapper namespace="MovieEvaluateCountMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="MovieEvaluateCount" type="project.gatcha.model.MovieEvaluateCount">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="kfaId" column="kfa_id" />
+		<result property="title" column="title" />
+		<result property="view" column="view" />
+		<result property="like" column="like" />
+		<result property="dislike" column="dislike" />
+		<result property="myStarpoint" column="my_starpoint" />
+		<result property="diary" column="diary" />
+		<result property="year" column="year" />
+		<result property="country" column="country" />
+		<result property="memberId" column="member_id" />
+		<result property="movieKfaId" column="movie_kfa_id" />
+		<result property="month" column="month" />
+		
+	
+	</resultMap>
+	
+	<!-- 내가 평가한 영화 목록 중에 특정년도에 해당하는 영화정보 리스트-->
+	 <select id="selectMEC_List" parameterType="project.gatcha.model.MovieEvaluateCount" resultMap="MovieEvaluateCount">
+	 
+	 	SELECT  m.kfa_id as kfa_id,ev.my_starpoint , ev.view , ev.likes , ev.dislike , ev.diary , m.title as title , m.year as year, m.country as country
+	 	 		FROM evaluate ev
+		LEFT OUTER JOIN movie m ON (m.kfa_id = ev.movie_kfa_id)			
+				
+			 	WHERE ev.member_id = #{memberId}  AND  (m.year LIKE #{year} OR m.year LIKE CONCAT (#{year},'%') )
+			 	
+				
+   	 </select>
+	
+	<!-- 내가 평가한 영화 목록중 특정 월  -->
+	 <select id="selectMEI_List" parameterType="project.gatcha.model.MovieEvaluateCount" resultMap="MovieEvaluateCount">
+	 
+	 	SELECT  m.kfa_id as kfa_id,ev.my_starpoint , ev.view , ev.likes , ev.dislike , ev.diary , m.title as title , m.year as year, m.country as country
+	 	 		FROM evaluate ev
+		LEFT OUTER JOIN movie m ON (m.kfa_id = ev.movie_kfa_id)			
+				
+			 	WHERE ev.member_id = #{memberId}  AND  (m.year LIKE CONCAT ('____', #{month}, '__') )
+				
+   	 </select>
+	
+	
+	
+	
+	
+</mapper>
