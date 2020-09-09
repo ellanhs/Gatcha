@@ -31,7 +31,8 @@ public class DocumentComment extends BaseController {
 	SqlSession sqlSession;
 	// --> import study.jsp.helper.WebHelper;
 	WebHelper web;
-
+ 
+	
 	// --> import study.jsp.mysite.service.BbsDocumentService;
 	BbsService bbsService;
 
