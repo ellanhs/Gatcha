@@ -6,12 +6,10 @@
 <html lang="ko">
 	<head>
 		<%@ include file="/WEB-INF/inc/head.jsp" %>
-
 		<!-- 캐러셀 css-->
 		<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/carousel.css" />
-
 		<style type="text/css">
-		
+
 			.modal{
             	overflow: auto;
         	}
