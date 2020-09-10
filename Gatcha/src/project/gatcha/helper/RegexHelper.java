@@ -24,9 +24,7 @@ public class RegexHelper {
 
 	/**
 	 * 주어진 문자열이 공백이거나 null인지를 검사
-	 * 
-	 * @param str
-	 *            - 검사할 문자열
+	 * @param str      - 검사할 문자열
 	 * @return boolean - 공백,null이 아닐 경우 true 리턴
 	 */
 	public boolean isValue(String str) {
@@ -37,11 +35,8 @@ public class RegexHelper {
 		return result;
 	}
 
-	/**
-	 * 숫자 모양에 대한 형식 검사
-	 * 
-	 * @param str
-	 *            - 검사할 문자열
+	/* 숫자 모양에 대한 형식 검사
+	 * @param str      - 검사할 문자열
 	 * @return boolean - 형식에 맞을 경우 true, 맞지 않을 경우 false
 	 */
 	public boolean isNum(String str) {
@@ -53,10 +48,8 @@ public class RegexHelper {
 	}
 
 	/**
-	 * 영문으로만 구성되었는지에 대한 형식 검사
-	 * 
-	 * @param str
-	 *            - 검사할 문자열
+	 * 영문으로만 구성되었는지에 대한 형식 검사 
+	 * @param str - 검사할 문자열
 	 * @return boolean - 형식에 맞을 경우 true, 맞지 않을 경우 false
 	 */
 	public boolean isEng(String str) {
@@ -68,10 +61,8 @@ public class RegexHelper {
 	}
 
 	/**
-	 * 한글로만 구성되었는지에 대한 형식 검사
-	 * 
-	 * @param str
-	 *            - 검사할 문자열
+	 * 한글로만 구성되었는지에 대한 형식 검사 
+	 * @param str      - 검사할 문자열
 	 * @return boolean - 형식에 맞을 경우 true, 맞지 않을 경우 false
 	 */
 	public boolean isKor(String str) {
@@ -82,11 +73,8 @@ public class RegexHelper {
 		return result;
 	}
 
-	/**
-	 * 영문과 숫자로만 구성되었는지에 대한 형식 검사
-	 * 
-	 * @param str
-	 *            - 검사할 문자열
+	/**영문과 숫자로만 구성되었는지에 대한 형식 검사
+	 * @param str      - 검사할 문자열
 	 * @return boolean - 형식에 맞을 경우 true, 맞지 않을 경우 false
 	 */
 	public boolean isEngNum(String str) {
@@ -99,9 +87,7 @@ public class RegexHelper {
 
 	/**
 	 * 한글과 숫자로만 구성되었는지에 대한 형식 검사
-	 * 
-	 * @param str
-	 *            - 검사할 문자열
+	 * @param str- 검사할 문자열
 	 * @return boolean - 형식에 맞을 경우 true, 맞지 않을 경우 false
 	 */
 	public boolean isKorNum(String str) {
@@ -112,13 +98,10 @@ public class RegexHelper {
 		return result;
 	}
 
-	/**
-	 * 이메일 형식인지에 대한 검사.
-	 * 
-	 * @param str
-	 *            - 검사할 문자열
+	/*이메일 형식인지에 대한 검사.
+	 * @param str      - 검사할 문자열
 	 * @return boolean - 형식에 맞을 경우 true, 맞지 않을 경우 false
-	 */
+	 *  */
 	public boolean isEmail(String str) {
 		boolean result = false;
 		if (isValue(str)) {
@@ -128,10 +111,8 @@ public class RegexHelper {
 	}
 
 	/**
-	 * "-"없이 핸드폰번호인지에 대한 형식검사.
-	 * 
-	 * @param str
-	 *            - 검사할 문자열
+	 * "-"없이 핸드폰번호인지에 대한 형식검사. 
+	 * @param str      - 검사할 문자열
 	 * @return boolean - 형식에 맞을 경우 true, 맞지 않을 경우 false
 	 */
 	public boolean isCellPhone(String str) {
@@ -144,24 +125,23 @@ public class RegexHelper {
 
 	/**
 	 * "-"없이 전화번호인지에 대한 형식검사.
-	 * 
-	 * @param str
-	 *            - 검사할 문자열
+	 * @param str - 검사할 문자열
 	 * @return boolean - 형식에 맞을 경우 true, 맞지 않을 경우 false
 	 */
 	public boolean isTel(String str) {
+		
 		boolean result = false;
+		
 		if (isValue(str)) {
 			result = Pattern.matches("^\\d{2,3}\\d{3,4}\\d{4}$", str);
 		}
+		
 		return result;
 	}
 	
 	/**
 	 * "-"없이 주민번호에 대한 형식검사
-	 * 
-	 * @param str
-	 *            - 검사할 문자열
+	 * @param str - 검사할 문자열
 	 * @return boolean - 형식에 맞을 경우 true, 맞지 않을 경우 false
 	 */
 	public boolean isJumin(String str) {
