@@ -19,8 +19,8 @@ import project.gatcha.model.Member;
 import project.gatcha.model.Boxoffice;
 import project.gatcha.service.BoxofficeService;
 import project.gatcha.service.impl.BoxofficeServiceImpl;
-
-/**
+ 
+/*
  * Servlet implementation class EvaluateBoxoffice
  */
 @WebServlet("/main.do")
